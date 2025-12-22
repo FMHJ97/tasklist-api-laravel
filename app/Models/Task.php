@@ -14,6 +14,10 @@ class Task extends Model
         'user_id',
     ];
 
+    protected $attributes = [
+        'completed' => false,
+    ];
+
     protected function casts(): array
     {
         return [
