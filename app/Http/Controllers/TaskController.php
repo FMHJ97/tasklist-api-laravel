@@ -13,7 +13,11 @@ class TaskController extends Controller
      */
     public function index()
     {
-        //
+        // Retrieve all tasks for user.
+        $tasks = Task::whereUserId(1)->latest()->get();
+
+        // Return the tasks as a collection of TaskResource.
+        return TaskResource::collection($tasks);
     }
 
     /**
@@ -26,6 +30,7 @@ class TaskController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
+
         // Create a new Task.
         $task = Task::create([
             'title' => $request->input('title'),
@@ -44,7 +49,11 @@ class TaskController extends Controller
      */
     public function show(string $id)
     {
-        //
+        // Find the task by ID.
+        $task = Task::whereUserId(1)->findOrFail($id); // User Dummy
+
+        // Return the task using TaskResource.
+        return new TaskResource($task);
     }
 
     /**
@@ -52,7 +61,23 @@ class TaskController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // Validate incoming request data.
+        // Sometimes means the field is optional, but if present, it must meet the validation rules.
+        $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|nullable|string',
+            'completed' => 'sometimes|boolean',
+        ]);
+
+        // Find the task by ID.
+        $task = Task::whereUserId(1)->findOrFail($id); // User Dummy
+
+        // Update the task with validated data.
+        // Only update the fields that are present in the request.
+        $task->update($request->only(['title', 'description', 'completed']));
+
+        // Return the updated task using TaskResource.
+        return new TaskResource($task);
     }
 
     /**
@@ -60,6 +85,13 @@ class TaskController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        // Find the task by ID.
+        $task = Task::whereUserId(1)->findOrFail($id); // User Dummy
+
+        // Delete the task.
+        $task->delete();
+
+        // Return a 204 No Content response.
+        return response()->noContent();
     }
 }
